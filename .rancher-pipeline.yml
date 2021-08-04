@@ -7,5 +7,7 @@ stages:
       tag: curatorcontainer:v1.0.${CICD_EXECUTION_SEQUENCE}
       pushRemote: true
       registry: docker.atriarch.systems
+    env:
+      PLUGIN_MTU: "1400"
 timeout: 20
 notification: {}
