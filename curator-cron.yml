@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: curator-config
+  namespace: atriarch-logging
+data:
+  action_file.yml: |-
+    ---
+    actions:
+      1:
+        action: delete_indices
+        description: "Clean up ES by deleting old indices"
+        options:
+          timeout_override:
+          continue_if_exception: False
+          disable_action: False
+          ignore_empty_list: True
+        filters:
+        - filtertype: age
+          source: name
+          direction: older
+          timestring: '%Y.%m.%d'
+          unit: days
+          unit_count: 3
+          field:
+          stats_result:
+          epoch:
+          exclude: False
+  config.yml: |-
+    ---
+    client:
+      hosts:
+        - atriarch-logging-master-headless.atriarch-logging.svc.cluster.local
+      port: 9200
+      # url_prefix:
+      # use_ssl: True
+      # certificate:
+      # client_cert:
+      # client_key:
+      # ssl_no_validate: True
+      # http_auth:
+      # timeout: 30
+      # master_only: False
+    # logging:
+    #   loglevel: INFO
+    #   logfile:
+    #   logformat: default
+    #   blacklist: ['elasticsearch', 'urllib3']
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: elastic-curator-cron
+  namespace: atriarch-logging
+spec:
+  schedule: "1 1 * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 100
+      template:
+        spec:
+          containers:
+          - name: elastic-curator-container
+            volumeMounts:
+            - name: appconfig-volume
+              mountPath: /app/config
+            image: atriarchsystems/curatorcontainer
+            imagePullPolicy: Always
+            command:
+            - /bin/sh
+            - --config config.yml
+            - action_file.yml
+          volumes:
+          - name: appconfig-volume
+            configMap:
+              name: curator-config
+          imagePullSecrets:
+          - name: as-regcred
+          restartPolicy: OnFailure
