@@ -1,0 +1,11 @@
+stages:
+- name: build
+  steps:
+  - publishImageConfig:
+      dockerfilePath: ./Dockerfile
+      buildContext: .
+      tag: curatorcontainer:v1.0.${CICD_EXECUTION_SEQUENCE}
+      pushRemote: true
+      registry: docker.atriarch.systems
+timeout: 10
+notification: {}
