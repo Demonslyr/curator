@@ -64,7 +64,7 @@ spec:
             volumeMounts:
             - name: appconfig-volume
               mountPath: /curator/config
-            image: docker.atriarch.systems/curatorcontainer
+            image: docker.atriarch.systems/curatorcontainer:v1.0.8
             imagePullPolicy: Always
             command:
             - /bin/sh
