@@ -63,7 +63,7 @@ spec:
           - name: elastic-curator-container
             volumeMounts:
             - name: appconfig-volume
-              mountPath: /app/config
+              mountPath: /curator/config
             image: docker.atriarch.systems/curatorcontainer
             imagePullPolicy: Always
             command:
